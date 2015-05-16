@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf8">
+		<style>
+			body{
+				margin: 0px;
+			}
+		</style>
+	</head>
+	<body>
+		<img id="particleImg" src="img/particle1.png" style="display: none;">
+		<script src="js/stardust.js"></script>
+		<script>
+		window.addEventListener('load', function(){
+			var canvas = document.createElement('canvas');
+			var ctx = canvas.getContext('2d');
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			document.body.appendChild(canvas);
+
+			var stardust = new Stardust();
+			canvas.addEventListener('mousedown', function(event){
+				var x = event.clientX;
+				var y = event.clientY;
+
+				stardust.add(new Emitter(
+					document.getElementById('particleImg'),
+					x,
+					y,
+					100,
+					100,
+					3000,
+					3,
+					50,
+					250
+				));
+			});
+
+			var lastTime = 0;
+			function frame(time){
+				var delta = time - lastTime;
+				lastTime = time;
+				
+				ctx.fillStyle = '#fff';
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+			
+				stardust.update(delta);
+				stardust.render(canvas, ctx);
+
+				requestAnimationFrame(frame);
+			}
+			requestAnimationFrame(frame);
+		});
+		</script>
+	</body>
+</html>
