@@ -43,21 +43,21 @@ Stardust.prototype.render = function(canvas, ctx){
 }
 
 /*	An Emitter object creates and maintaines Particles according to the rules given to it. */
-function Emitter(image, x, y, width, height, ttl, emitCount, emitInterval, particleTTL, options){
-	this.image = getValue(image);
+function Emitter(x, y, options){
 	this.x = x;
-	this.y = y;
-	this.width = width;
-	this.height = height;
-	this.ttl = getValue(ttl);
-	this.emitCount = emitCount;
-	this.emitInterval = emitInterval;
-	this.particleTTL = particleTTL;
+	this.y = y
 
-	options = options || {};
-	this.dx = options.dx || 0;
-	this.dy = options.dy || 0;
+	this.image = getValue(options.image) || null;
 	this.opacity = options.opacity || 1;
+	this.ttl = getValue(options.ttl) || 1000;
+	
+	this.width = options.width || 0;
+	this.height = options.height || 0;
+
+	this.emitCount = options.emitCount || 10;
+	this.emitInterval = options.emitInterval || 200;
+	this.particleTTL = options.particleTTL || 100;
+	this.particleVelocity = options.particleVelocity || {x: 0, y: 0};
 
 	this.time = 0;
 	this.emitTimer = 0;
@@ -74,8 +74,7 @@ Emitter.prototype.update = function(delta){
 				getValue(this.x, this.time) + Math.random()*getValue(this.width, this.time),
 				getValue(this.y, this.time) + Math.random()*getValue(this.height, this.time),
 				getValue(this.particleTTL, this.time),
-				getValue(this.dx, this.time),
-				getValue(this.dy, this.time)
+				getValue(this.particleVelocity, this.time)
 			));
 		}
 
@@ -106,21 +105,21 @@ Emitter.prototype.render = function(canvas, ctx){
 }
 
 /* A Particle object represents a single object rendered to the screen. */
-function Particle(emitter, image, x, y, duration, dx, dy){
+function Particle(emitter, image, x, y, duration, velocity){
 	this.emitter = emitter;
 	this.image = image;
 	this.x = x;
 	this.y = y;
 	this.ttl = duration;
-	this.dx = dx;
-	this.dy = dy;
+	this.velocity = velocity;
 
 	this.time = 0;
 }
 
 Particle.prototype.update = function(delta){
-	this.x += getValue(this.dx, this.time) * delta / 1000;
-	this.y += getValue(this.dy, this.time) * delta / 1000;
+	var velocity = getValue(this.velocity, this.time);
+	this.x += velocity.x * delta / 1000;
+	this.y += velocity.y * delta / 1000;
 	if(this.ttl !== null){
 		this.ttl -= delta;
 	}

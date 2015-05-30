@@ -24,18 +24,18 @@
 				var x = event.clientX;
 				var y = event.clientY;
 
-				stardust.add(new Emitter(
-					document.getElementById('particleImg'),
-					x,
-					y,
-					10,
-					10,
-					3000,
-					3,
-					50,
-					250, {
-						dx: function(){return Math.random()*500 - 250},
-						dy: function(){return Math.random()*500 - 250},
+				stardust.add(new Emitter(x, y, {
+						image: document.getElementById('particleImg'),
+						width: 10,
+						height: 10,
+						ttl: 500,
+						emitCount: 30,
+						emitInterval: 10,
+						particleTTL: 550,
+						particleVelocity: function(){return {
+							x: Math.random()*500 - 250,
+							y: Math.random()*500 - 250
+						}},
 					}
 				));
 			});
