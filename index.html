@@ -9,7 +9,7 @@
 		</style>
 	</head>
 	<body>
-		<img id="particleImg" src="img/particle1.png" style="display: none;">
+		<img id="particleImg" src="img/smoke1.png" style="display: none;">
 		<script src="js/stardust.js"></script>
 		<script>
 		window.addEventListener('load', function(){
@@ -28,12 +28,15 @@
 					document.getElementById('particleImg'),
 					x,
 					y,
-					100,
-					100,
+					10,
+					10,
 					3000,
 					3,
 					50,
-					250
+					250, {
+						dx: function(){return Math.random()*500 - 250},
+						dy: function(){return Math.random()*500 - 250},
+					}
 				));
 			});
 
@@ -42,7 +45,7 @@
 				var delta = time - lastTime;
 				lastTime = time;
 				
-				ctx.fillStyle = '#fff';
+				ctx.fillStyle = '#555';
 				ctx.fillRect(0, 0, canvas.width, canvas.height);
 			
 				stardust.update(delta);

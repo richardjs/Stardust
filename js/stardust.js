@@ -3,9 +3,9 @@
 
 /*	For flexibility, most parameters may be either a literal or a function
 	called at the time of use. getValue is used to abstract that process. */
-function getValue(x){
+function getValue(x, time){
 	if(typeof(x) === 'function'){
-		return x();
+		return x(time);
 	}else{
 		return x;
 	}
@@ -43,7 +43,7 @@ Stardust.prototype.render = function(canvas, ctx){
 }
 
 /*	An Emitter object creates and maintaines Particles according to the rules given to it. */
-function Emitter(image, x, y, width, height, ttl, emitCount, emitInterval, particleTTL){
+function Emitter(image, x, y, width, height, ttl, emitCount, emitInterval, particleTTL, options){
 	this.image = getValue(image);
 	this.x = x;
 	this.y = y;
@@ -54,24 +54,32 @@ function Emitter(image, x, y, width, height, ttl, emitCount, emitInterval, parti
 	this.emitInterval = emitInterval;
 	this.particleTTL = particleTTL;
 
-	this.emitTimer = 0;
+	options = options || {};
+	this.dx = options.dx || 0;
+	this.dy = options.dy || 0;
+	this.opacity = options.opacity || 1;
 
+	this.time = 0;
+	this.emitTimer = 0;
 	this.particles = [];
 }
 
 Emitter.prototype.update = function(delta){
 	if(this.emitTimer <= 0 && (this.ttl > 0 || this.ttl === null)){
-		var count = getValue(this.emitCount);
+		var count = getValue(this.emitCount, this.time);
 		for(var i = 0; i < count; i++){
 			this.particles.push(new Particle(
 				this,
-				getValue(this.x) + Math.random()*getValue(this.width),
-				getValue(this.y) + Math.random()*getValue(this.height),
-				getValue(this.particleTTL)
+				getValue(this.image, this.time),
+				getValue(this.x, this.time) + Math.random()*getValue(this.width, this.time),
+				getValue(this.y, this.time) + Math.random()*getValue(this.height, this.time),
+				getValue(this.particleTTL, this.time),
+				getValue(this.dx, this.time),
+				getValue(this.dy, this.time)
 			));
 		}
 
-		this.emitTimer += getValue(this.emitInterval);
+		this.emitTimer += getValue(this.emitInterval, this.time);
 	}
 	this.emitTimer -= delta;
 
@@ -87,6 +95,8 @@ Emitter.prototype.update = function(delta){
 	if(this.ttl !== null){
 		this.ttl -= delta;
 	}
+
+	this.time += delta;
 }
 
 Emitter.prototype.render = function(canvas, ctx){
@@ -96,26 +106,33 @@ Emitter.prototype.render = function(canvas, ctx){
 }
 
 /* A Particle object represents a single object rendered to the screen. */
-function Particle(emitter, x, y, duration){
+function Particle(emitter, image, x, y, duration, dx, dy){
 	this.emitter = emitter;
+	this.image = image;
 	this.x = x;
 	this.y = y;
 	this.ttl = duration;
+	this.dx = dx;
+	this.dy = dy;
+
+	this.time = 0;
 }
 
 Particle.prototype.update = function(delta){
-	//this.x += this.dx * delta / 1000;
-	//this.y += this.dy * delta / 1000;
+	this.x += getValue(this.dx, this.time) * delta / 1000;
+	this.y += getValue(this.dy, this.time) * delta / 1000;
 	if(this.ttl !== null){
 		this.ttl -= delta;
 	}
+
+	this.time += delta;
 }
 
 Particle.prototype.render = function(canvas, ctx){
 	ctx.save();
-	ctx.translate(this.x, this.y);
-	var image = getValue(this.emitter.image);
-	ctx.drawImage(image, -image.width/2, -image.height/2);
+	//ctx.translate(getValue(this.x, this.time), getValue(this.y, this.time));
+	var image = getValue(this.image, this.time);
+	ctx.drawImage(image, this.x-image.width/2, this.y-image.height/2);
 	ctx.restore();
 }
 
