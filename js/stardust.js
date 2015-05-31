@@ -63,7 +63,7 @@ function Emitter(x, y, options){
 	this.particleTTL = options.particleTTL || 100;
 	this.particleVelocity = options.particleVelocity || {x: 0, y: 0};
 
-	this.renderOrder = 'first'; // or 'last'
+	this.renderOrder = options.renderOrder || 'first'; // or 'last'
 
 	this.time = 0;
 	this.emitTimer = 0;
