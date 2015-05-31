@@ -68,6 +68,7 @@ function Emitter(x, y, options){
 	
 	this.width = options.width || 0;
 	this.height = options.height || 0;
+	this.velocity = options.velocity || {x: 0, y: 0};
 
 	this.emitCount = options.emitCount || 10;
 	this.emitInterval = options.emitInterval || 200;
@@ -113,6 +114,10 @@ Emitter.prototype.update = function(delta){
 	});
 	this.particles = stillAlive;
 	
+	var velocity = getValue(this.velocity, this.time);
+	this.x += getValue(velocity, this.time).x * delta / 1000;
+	this.y += getValue(velocity, this.time).y * delta / 1000;
+
 	if(this.ttl !== null){
 		this.ttl -= delta;
 	}
@@ -150,6 +155,7 @@ Particle.prototype.update = function(delta){
 	var velocity = getValue(this.velocity, this.time);
 	this.x += getValue(velocity, this.time).x * delta / 1000;
 	this.y += getValue(velocity, this.time).y * delta / 1000;
+
 	if(this.ttl !== null){
 		this.ttl -= delta;
 	}

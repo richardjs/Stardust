@@ -38,9 +38,10 @@
 						},
 						width: 0,
 						height: 0,
+						velocity: {x: 100, y: 100},
 						ttl: null,
-						emitCount: 20,
-						emitInterval: 100,
+						emitCount: 10,
+						emitInterval: 50,
 						particleTTL: function(){ return Math.random() * 5000},
 						particleVelocity: function(t){
 							var angle = Math.PI*2*Math.random();
