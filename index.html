@@ -9,7 +9,9 @@
 		</style>
 	</head>
 	<body>
-		<img id="particleImg" src="img/smoke3.png" style="display: none;">
+		<img id="particleImg1" src="img/smoke1.png" style="display: none;">
+		<img id="particleImg2" src="img/smoke3.png" style="display: none;">
+		<img id="particleImg3" src="img/smoke2.png" style="display: none;">
 		<script src="js/stardust.js"></script>
 		<script>
 		window.addEventListener('load', function(){
@@ -25,24 +27,43 @@
 				var y = event.clientY;
 
 				stardust.add(x, y, {
-						image: document.getElementById('particleImg'),
+						image: function(){
+							return function(){
+								return [
+									document.getElementById('particleImg1'),
+									document.getElementById('particleImg2'),
+									document.getElementById('particleImg3'),
+								][Math.floor(Math.random()*3)];
+							}
+						},
 						width: 0,
 						height: 0,
-						ttl: 500,
-						emitCount: 30,
+						ttl: null,
+						emitCount: 20,
 						emitInterval: 100,
-						particleTTL: 1000,
+						particleTTL: function(){ return Math.random() * 5000},
 						particleVelocity: function(t){
 							var angle = Math.PI*2*Math.random();
-							var speed = 100*Math.random();
-							return {
-								x: Math.cos(angle) * speed,
-								y: Math.sin(angle) * speed
+							var speed = 50*Math.random();
+							return function(t){
+								return {
+									x: Math.cos(angle) * speed + t*t/100000,
+									y: Math.sin(angle) * speed
+								}
 							}
 						},
 						opacity: function(){
 							return function(t){
-								return (Math.max(1000-t, 0))/1000
+								if(t < 500){
+									return t/500
+								}
+								return (Math.max(2500-t, 0))/2500
+							}
+						},
+						rotation: function(){
+							var dir = Math.floor(Math.random()*3)-1
+							return function(t){
+								return Math.PI*2 * t/3000 * dir;
 							}
 						}
 					}

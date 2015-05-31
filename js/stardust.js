@@ -26,6 +26,10 @@ Stardust.prototype.remove = function(emitter){
 }
 
 Stardust.prototype.update = function(delta){
+	while(delta > 100){
+		this.update(100);
+		delta -= 100;
+	}
 	var stillAlive = [];
 	this.emitters.forEach(function(emitter){
 		emitter.update(delta);
@@ -48,7 +52,7 @@ function Emitter(x, y, options){
 	this.y = y
 
 	this.image = getValue(options.image) || null;
-	this.opacity = options.opacity || 1;
+
 	if(options.ttl === null){
 		this.ttl = options.ttl;
 	}else{
@@ -64,6 +68,9 @@ function Emitter(x, y, options){
 	this.particleVelocity = options.particleVelocity || {x: 0, y: 0};
 
 	this.renderOrder = options.renderOrder || 'first'; // or 'last'
+
+	this.opacity = options.opacity || 1;
+	this.rotation = options.rotation || 0;
 
 	this.time = 0;
 	this.emitTimer = 0;
@@ -81,7 +88,8 @@ Emitter.prototype.update = function(delta){
 				getValue(this.y, this.time) + Math.random()*getValue(this.height, this.time),
 				getValue(this.particleTTL, this.time),
 				getValue(this.particleVelocity, this.time),
-				getValue(this.opacity, this.time)
+				getValue(this.opacity, this.time),
+				getValue(this.rotation, this.time)
 			));
 		}
 
@@ -118,7 +126,7 @@ Emitter.prototype.render = function(canvas, ctx){
 }
 
 /* A Particle object represents a single object rendered to the screen. */
-function Particle(emitter, image, x, y, duration, velocity, opacity){
+function Particle(emitter, image, x, y, duration, velocity, opacity, rotation){
 	this.emitter = emitter;
 	this.image = image;
 	this.x = x;
@@ -126,6 +134,7 @@ function Particle(emitter, image, x, y, duration, velocity, opacity){
 	this.ttl = duration;
 	this.velocity = velocity;
 	this.opacity = opacity;
+	this.rotation = rotation;
 
 	this.time = 0;
 }
@@ -144,6 +153,7 @@ Particle.prototype.update = function(delta){
 Particle.prototype.render = function(canvas, ctx){
 	ctx.save();
 	ctx.translate(getValue(this.x, this.time), getValue(this.y, this.time));
+	ctx.rotate(getValue(this.rotation, this.time));
 	ctx.globalAlpha = getValue(this.opacity, this.time);
 	var image = getValue(this.image, this.time);
 	ctx.drawImage(image, -image.width/2, -image.height/2);
