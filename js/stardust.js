@@ -18,6 +18,13 @@ function Stardust(){
 }
 
 Stardust.prototype.add = function(x, y, options){
+	if(Array.isArray(options)){
+		for(var i = 0; i < options.length; i++){
+			this.add(x, y, options[i]);
+		}
+		return;
+	}
+
 	this.emitters.push(new Emitter(x, y, options));
 }
 
