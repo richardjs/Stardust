@@ -17,8 +17,8 @@ function Stardust(){
 	this.emitters = [];
 }
 
-Stardust.prototype.add = function(emitter){
-	this.emitters.push(emitter);
+Stardust.prototype.add = function(x, y, options){
+	this.emitters.push(new Emitter(x, y, options));
 }
 
 Stardust.prototype.remove = function(emitter){
@@ -49,7 +49,11 @@ function Emitter(x, y, options){
 
 	this.image = getValue(options.image) || null;
 	this.opacity = options.opacity || 1;
-	this.ttl = getValue(options.ttl) || 1000;
+	if(options.ttl === null){
+		this.ttl = options.ttl;
+	}else{
+		this.ttl = getValue(options.ttl) || 1000;
+	}
 	
 	this.width = options.width || 0;
 	this.height = options.height || 0;
@@ -58,6 +62,8 @@ function Emitter(x, y, options){
 	this.emitInterval = options.emitInterval || 200;
 	this.particleTTL = options.particleTTL || 100;
 	this.particleVelocity = options.particleVelocity || {x: 0, y: 0};
+
+	this.renderOrder = 'first'; // or 'last'
 
 	this.time = 0;
 	this.emitTimer = 0;
@@ -99,9 +105,15 @@ Emitter.prototype.update = function(delta){
 }
 
 Emitter.prototype.render = function(canvas, ctx){
-	this.particles.forEach(function(particle){
-		particle.render(canvas, ctx);
-	});
+	if(getValue(this.renderOrder) === 'first'){
+		for(var i = this.particles.length - 1; i >= 0; i--){
+			this.particles[i].render(canvas, ctx);
+		}
+	}else{
+		for(var i = 0; i < this.particles.length; i++){
+			this.particles[i].render(canvas, ctx);
+		}
+	}
 }
 
 /* A Particle object represents a single object rendered to the screen. */
@@ -118,8 +130,8 @@ function Particle(emitter, image, x, y, duration, velocity){
 
 Particle.prototype.update = function(delta){
 	var velocity = getValue(this.velocity, this.time);
-	this.x += velocity.x * delta / 1000;
-	this.y += velocity.y * delta / 1000;
+	this.x += getValue(velocity, this.time).x * delta / 1000;
+	this.y += getValue(velocity, this.time).y * delta / 1000;
 	if(this.ttl !== null){
 		this.ttl -= delta;
 	}

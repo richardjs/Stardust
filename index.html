@@ -24,20 +24,24 @@
 				var x = event.clientX;
 				var y = event.clientY;
 
-				stardust.add(new Emitter(x, y, {
+				stardust.add(x, y, {
 						image: document.getElementById('particleImg'),
-						width: 10,
-						height: 10,
-						ttl: 500,
-						emitCount: 30,
+						width: 0,
+						height: 0,
+						ttl: null,
+						emitCount: 1,
 						emitInterval: 10,
-						particleTTL: 550,
-						particleVelocity: function(){return {
-							x: Math.random()*500 - 250,
-							y: Math.random()*500 - 250
-						}},
+						particleTTL: 10000,
+						particleVelocity: function(t){
+							var angle = Math.PI*2*t/1000;
+							var speed = 100;
+							return {
+								x: Math.cos(angle) * speed,
+								y: Math.sin(angle) * speed
+							}
+						},
 					}
-				));
+				);
 			});
 
 			var lastTime = 0;
