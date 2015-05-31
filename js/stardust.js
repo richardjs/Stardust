@@ -80,7 +80,8 @@ Emitter.prototype.update = function(delta){
 				getValue(this.x, this.time) + Math.random()*getValue(this.width, this.time),
 				getValue(this.y, this.time) + Math.random()*getValue(this.height, this.time),
 				getValue(this.particleTTL, this.time),
-				getValue(this.particleVelocity, this.time)
+				getValue(this.particleVelocity, this.time),
+				getValue(this.opacity, this.time)
 			));
 		}
 
@@ -117,13 +118,14 @@ Emitter.prototype.render = function(canvas, ctx){
 }
 
 /* A Particle object represents a single object rendered to the screen. */
-function Particle(emitter, image, x, y, duration, velocity){
+function Particle(emitter, image, x, y, duration, velocity, opacity){
 	this.emitter = emitter;
 	this.image = image;
 	this.x = x;
 	this.y = y;
 	this.ttl = duration;
 	this.velocity = velocity;
+	this.opacity = opacity;
 
 	this.time = 0;
 }
@@ -141,9 +143,10 @@ Particle.prototype.update = function(delta){
 
 Particle.prototype.render = function(canvas, ctx){
 	ctx.save();
-	//ctx.translate(getValue(this.x, this.time), getValue(this.y, this.time));
+	ctx.translate(getValue(this.x, this.time), getValue(this.y, this.time));
+	ctx.globalAlpha = getValue(this.opacity, this.time);
 	var image = getValue(this.image, this.time);
-	ctx.drawImage(image, this.x-image.width/2, this.y-image.height/2);
+	ctx.drawImage(image, -image.width/2, -image.height/2);
 	ctx.restore();
 }
 
