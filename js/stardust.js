@@ -25,7 +25,9 @@ Stardust.prototype.add = function(x, y, options){
 		return;
 	}
 
-	this.emitters.push(new Emitter(x, y, options));
+	var emitter = new Emitter(x, y, options);
+	this.emitters.push(emitter);
+	return emitter;
 }
 
 Stardust.prototype.remove = function(emitter){
@@ -56,22 +58,26 @@ Stardust.prototype.render = function(canvas, ctx){
 /*	An Emitter object creates and maintaines Particles according to the rules given to it. */
 function Emitter(x, y, options){
 	this.x = x;
-	this.y = y
+	this.y = y;
 
 	this.image = getValue(options.image) || null;
 
-	if(options.ttl === null){
-		this.ttl = options.ttl;
+	if(options.ttl === undefined){
+		this.ttl = 1000;
 	}else{
-		this.ttl = getValue(options.ttl) || 1000;
+		this.ttl = getValue(options.ttl);
 	}
 	
 	this.width = options.width || 0;
 	this.height = options.height || 0;
-	this.velocity = options.velocity || {x: 0, y: 0};
+	this.velocity = options.velocity || null;
+	this.inheritVelocity = options.inheritVelocity;
+	if(this.inheritVelocity === undefined){
+		this.inheritVelocity = true;
+	}
 
 	this.emitCount = options.emitCount || 10;
-	this.emitInterval = options.emitInterval || 200;
+	this.emitInterval = options.emitInterval || 500;
 	this.particleTTL = options.particleTTL || 100;
 	this.particleVelocity = options.particleVelocity || {x: 0, y: 0};
 
@@ -86,7 +92,7 @@ function Emitter(x, y, options){
 }
 
 Emitter.prototype.update = function(delta){
-	if(this.emitTimer <= 0 && (this.ttl > 0 || this.ttl === null)){
+	if(this.emitTimer <= 0 && (this.ttl >= 0 || this.ttl === null)){
 		var count = getValue(this.emitCount, this.time);
 		for(var i = 0; i < count; i++){
 			this.particles.push(new Particle(
@@ -95,7 +101,7 @@ Emitter.prototype.update = function(delta){
 				getValue(this.x, this.time) + Math.random()*getValue(this.width, this.time),
 				getValue(this.y, this.time) + Math.random()*getValue(this.height, this.time),
 				getValue(this.particleTTL, this.time),
-				getValue(this.particleVelocity, this.time),
+				getValue(this.particleVelocity),
 				getValue(this.opacity, this.time),
 				getValue(this.rotation, this.time)
 			));
@@ -114,9 +120,11 @@ Emitter.prototype.update = function(delta){
 	});
 	this.particles = stillAlive;
 	
-	var velocity = getValue(this.velocity, this.time);
-	this.x += getValue(velocity, this.time).x * delta / 1000;
-	this.y += getValue(velocity, this.time).y * delta / 1000;
+	if(this.velocity){
+		var velocity = getValue(this.velocity, this.time);
+		this.x += getValue(velocity, this.time).x * delta / 1000;
+		this.y += getValue(velocity, this.time).y * delta / 1000;
+	}
 
 	if(this.ttl !== null){
 		this.ttl -= delta;
@@ -153,8 +161,13 @@ function Particle(emitter, image, x, y, duration, velocity, opacity, rotation){
 
 Particle.prototype.update = function(delta){
 	var velocity = getValue(this.velocity, this.time);
-	this.x += getValue(velocity, this.time).x * delta / 1000;
-	this.y += getValue(velocity, this.time).y * delta / 1000;
+	this.x += velocity.x * delta / 1000;
+	this.y += velocity.y * delta / 1000;
+	if(this.emitter.velocity && getValue(this.emitter.inheritVelocity, this.emitter.time)){
+		var emitterVelocity = getValue(this.emitter.velocity, this.time);
+		this.x += emitterVelocity.x * delta / 1000;
+		this.y += emitterVelocity.y * delta / 1000;
+	}
 
 	if(this.ttl !== null){
 		this.ttl -= delta;
